@@ -247,6 +247,13 @@
                             <option value="D5 NaCl 0.9%">D5 + NaCl 0.9%</option>
                         </select>
                     </div>
+                    <div class="form-group">
+                        <label>Set Infus</label>
+                        <select id="dehid-set">
+                            <option value="20">Makro (20 gtt/mL)</option>
+                            <option value="60">Mikro (60 gtt/mL)</option>
+                        </select>
+                    </div>
                 </div>
                 <div class="btn-row">
                     <button class="btn btn-primary" onclick="calcDehidrasi()">Hitung</button>
@@ -276,6 +283,13 @@
                             <option value="2">Kelas II — 15–30% EBV</option>
                             <option value="3">Kelas III — 30–40% EBV</option>
                             <option value="4">Kelas IV — &gt;40% EBV</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Set Infus</label>
+                        <select id="syok-set">
+                            <option value="20">Makro (20 gtt/mL)</option>
+                            <option value="60">Mikro (60 gtt/mL)</option>
                         </select>
                     </div>
                 </div>
@@ -310,6 +324,13 @@
                         <input type="number" id="lb-hours" placeholder="cth. 2" min="0" max="24" value="0">
                         <span class="form-hint">0 = baru saja terjadi</span>
                     </div>
+                    <div class="form-group">
+                        <label>Set Infus</label>
+                        <select id="lb-set">
+                            <option value="20">Makro (20 gtt/mL)</option>
+                            <option value="60">Mikro (60 gtt/mL)</option>
+                        </select>
+                    </div>
                 </div>
                 <div class="btn-row">
                     <button class="btn btn-primary" onclick="calcLukaBakar()">Hitung</button>
@@ -337,6 +358,13 @@
                         <select id="sep-condition">
                             <option value="normal">Normal</option>
                             <option value="impaired">Terganggu (hati-hati volume)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Set Infus</label>
+                        <select id="sep-set">
+                            <option value="20">Makro (20 gtt/mL)</option>
+                            <option value="60">Mikro (60 gtt/mL)</option>
                         </select>
                     </div>
                 </div>
@@ -404,6 +432,31 @@ function showSubTab(name, btn) {
 function toggleNeonateAge() {
     const v = document.getElementById('maint-type').value;
     document.getElementById('maint-age-group').style.display = v === 'neonate' ? 'block' : 'none';
+}
+
+// ─── DRIP RATE HELPER ─────────────────────────────────────────────────────────
+function dripBox(rates, setFactor) {
+    // rates: array of { label, mlJam }
+    const setLabel = setFactor === 20 ? 'Makro (20 gtt/mL)' : 'Mikro (60 gtt/mL)';
+    const rows = rates.map(r => {
+        const gttMin = (r.mlJam * setFactor / 60).toFixed(0);
+        const gttMin1 = Math.round(r.mlJam * setFactor / 60);
+        return `<div class="info-row">
+            <span class="lbl">${r.label}</span>
+            <span class="val">
+                <span style="color:var(--primary);font-size:1rem;">${r.mlJam} mL/jam</span>
+                &nbsp;→&nbsp;
+                <span style="color:var(--danger);font-size:1.05rem;font-weight:800;">${gttMin1} gtt/mnt</span>
+            </span>
+        </div>`;
+    }).join('');
+    return `<div class="result-box" style="margin-top:10px;background:#f0fff4;border:1px solid #2ecc71;">
+        <h4 style="color:#27ae60;">💧 Tetesan — Set ${setLabel}</h4>
+        ${rows}
+        <div style="font-size:0.75rem;color:var(--text-light);margin-top:8px;">
+            Rumus: gtt/mnt = mL/jam × ${setFactor} ÷ 60
+        </div>
+    </div>`;
 }
 
 // ─── MAINTENANCE ──────────────────────────────────────────────────────────────
@@ -482,44 +535,61 @@ function calcDehidrasi() {
     const pct = deg === 'mild' ? 5 : deg === 'moderate' ? 10 : 15;
     const deficit = (pct / 100) * w * 1000;
     const maint = maintPerDay(w, group === 'child' ? 'child' : 'adult', 1).ml;
+    const setFactor = parseInt(document.getElementById('dehid-set').value);
 
     let html = '';
+    let dripRates = [];
 
     if (deg === 'mild' && group === 'child') {
+        const maintJam = parseFloat((maint/24).toFixed(1));
         html = `<div class="alert alert-success" style="margin-top:14px;"><strong>📋 Rencana A — Terapi Oral (ORS di rumah)</strong></div>
         <div class="result-grid">
             <div class="result-item success"><div class="result-label">Defisit</div><div class="result-value">${deficit.toFixed(0)}</div><div class="result-unit">mL</div></div>
             <div class="result-item success"><div class="result-label">ORS 4 jam</div><div class="result-value">${(w*75).toFixed(0)}</div><div class="result-unit">mL (75 mL/kg)</div></div>
             <div class="result-item success"><div class="result-label">Maintenance</div><div class="result-value">${maint.toFixed(0)}</div><div class="result-unit">mL/hari</div></div>
         </div>`;
+        dripRates = [{ label:'Maintenance IV (jika diperlukan)', mlJam: maintJam }];
     } else if (deg === 'mild' && group === 'adult') {
+        const rate4h = parseFloat((deficit/4).toFixed(1));
+        const maintJam = parseFloat((maint/24).toFixed(1));
         html = `<div class="alert alert-success" style="margin-top:14px;"><strong>📋 Dehidrasi Ringan Dewasa</strong></div>
         <div class="result-grid">
             <div class="result-item success"><div class="result-label">Defisit</div><div class="result-value">${deficit.toFixed(0)}</div><div class="result-unit">mL</div></div>
-            <div class="result-item success"><div class="result-label">Berikan dalam 4 jam</div><div class="result-value">${(deficit/4).toFixed(0)}</div><div class="result-unit">mL/jam (IV/oral)</div></div>
-            <div class="result-item success"><div class="result-label">Maintenance</div><div class="result-value">${(maint/24).toFixed(1)}</div><div class="result-unit">mL/jam</div></div>
+            <div class="result-item success"><div class="result-label">Rate 4 Jam</div><div class="result-value">${rate4h}</div><div class="result-unit">mL/jam</div></div>
+            <div class="result-item success"><div class="result-label">Maintenance</div><div class="result-value">${maintJam}</div><div class="result-unit">mL/jam</div></div>
         </div>`;
+        dripRates = [
+            { label:'Rate koreksi (4 jam)', mlJam: rate4h },
+            { label:'Maintenance lanjutan', mlJam: maintJam },
+        ];
     } else if (deg === 'moderate') {
         const bolus = group === 'child' ? w * 20 : 500;
         const postBolus = Math.max(0, deficit - bolus);
+        const rateSisa = parseFloat((postBolus/8).toFixed(1));
+        const maintJam = parseFloat((maint/24).toFixed(1));
+        const rateCombined = parseFloat((rateSisa + maintJam).toFixed(1));
         html = `<div class="alert alert-warning" style="margin-top:14px;"><strong>📋 Rencana B — Rehidrasi Terpimpin IV</strong></div>
         <div class="result-grid">
             <div class="result-item warning"><div class="result-label">Defisit Total</div><div class="result-value">${deficit.toFixed(0)}</div><div class="result-unit">mL</div></div>
             <div class="result-item warning"><div class="result-label">Bolus Awal</div><div class="result-value">${bolus.toFixed(0)}</div><div class="result-unit">mL ${group==='child'?'(20 mL/kg)':''} / 30 mnt</div></div>
             <div class="result-item warning"><div class="result-label">Sisa Defisit</div><div class="result-value">${postBolus.toFixed(0)}</div><div class="result-unit">mL (8 jam)</div></div>
-            <div class="result-item warning"><div class="result-label">Rate Sisa</div><div class="result-value">${(postBolus/8).toFixed(1)}</div><div class="result-unit">mL/jam</div></div>
+            <div class="result-item warning"><div class="result-label">Rate Sisa</div><div class="result-value">${rateSisa}</div><div class="result-unit">mL/jam</div></div>
         </div>
         <div class="result-box" style="margin-top:10px;"><h4>📅 Rencana Cairan (${fluid})</h4>
             <div class="step-box"><span class="step-num">1</span><strong>Bolus:</strong> ${bolus.toFixed(0)} mL dalam 30 menit</div>
-            <div class="step-box"><span class="step-num">2</span><strong>8 jam:</strong> ${postBolus.toFixed(0)} mL sisa defisit → <strong>${(postBolus/8).toFixed(1)} mL/jam</strong></div>
-            <div class="step-box"><span class="step-num">3</span><strong>Maintenance:</strong> tambahkan ${(maint/24).toFixed(1)} mL/jam ke rate di atas</div>
+            <div class="step-box"><span class="step-num">2</span><strong>8 jam:</strong> ${postBolus.toFixed(0)} mL sisa defisit → <strong>${rateSisa} mL/jam</strong></div>
+            <div class="step-box"><span class="step-num">3</span><strong>Maintenance:</strong> tambahkan ${maintJam} mL/jam → total <strong>${rateCombined} mL/jam</strong></div>
         </div>`;
+        dripRates = [
+            { label:'Sisa defisit (8 jam)', mlJam: rateSisa },
+            { label:'Defisit + Maintenance (total)', mlJam: rateCombined },
+        ];
     } else { // severe
         const bolus = group === 'child' ? w * 20 : 1000;
         const half1 = deficit / 2;
         const half2 = deficit / 2;
-        const rate8 = ((half1 + maint * 8/24) / 8).toFixed(1);
-        const rate16 = ((half2 + maint * 16/24) / 16).toFixed(1);
+        const rate8 = parseFloat(((half1 + maint * 8/24) / 8).toFixed(1));
+        const rate16 = parseFloat(((half2 + maint * 16/24) / 16).toFixed(1));
         html = `<div class="alert alert-danger" style="margin-top:14px;"><strong>📋 Rencana C — Resusitasi IV Segera</strong></div>
         <div class="result-grid">
             <div class="result-item danger"><div class="result-label">Defisit Total</div><div class="result-value">${deficit.toFixed(0)}</div><div class="result-unit">mL</div></div>
@@ -527,12 +597,17 @@ function calcDehidrasi() {
             <div class="result-item danger"><div class="result-label">Total 24 Jam</div><div class="result-value">${(deficit+maint).toFixed(0)}</div><div class="result-unit">mL</div></div>
         </div>
         <div class="result-box" style="margin-top:10px;"><h4>📅 Rencana Cairan (${fluid})</h4>
-            <div class="step-box"><span class="step-num">1</span><strong>Bolus segera:</strong> ${bolus.toFixed(0)} mL dalam ${group==='child'?'30':' 30–60'} menit</div>
-            <div class="step-box"><span class="step-num">2</span><strong>8 jam pertama:</strong> ½ defisit + maintenance 8 jam → <strong>${rate8} mL/jam</strong></div>
-            <div class="step-box"><span class="step-num">3</span><strong>16 jam berikutnya:</strong> ½ defisit + maintenance 16 jam → <strong>${rate16} mL/jam</strong></div>
+            <div class="step-box"><span class="step-num">1</span><strong>Bolus segera:</strong> ${bolus.toFixed(0)} mL dalam ${group==='child'?'30':'30–60'} menit</div>
+            <div class="step-box"><span class="step-num">2</span><strong>8 jam pertama:</strong> ½ defisit + maintenance → <strong>${rate8} mL/jam</strong></div>
+            <div class="step-box"><span class="step-num">3</span><strong>16 jam berikutnya:</strong> ½ defisit + maintenance → <strong>${rate16} mL/jam</strong></div>
         </div>`;
+        dripRates = [
+            { label:'8 jam pertama', mlJam: rate8 },
+            { label:'16 jam berikutnya', mlJam: rate16 },
+        ];
     }
 
+    html += dripBox(dripRates, setFactor);
     html += `<div class="alert alert-info" style="margin-top:8px;">⚕️ Monitor: diuresis target ${group==='child'?'1–2':'0.5–1'} mL/kg/jam · Tanda vital tiap 1–2 jam · Periksa elektrolit</div>`;
     document.getElementById('dehid-result').innerHTML = html;
 }
@@ -546,18 +621,23 @@ function calcSyok() {
 
     const ebvKg = group === 'child' ? 80 : 70;
     const ebv = w * ebvKg;
+    const setFactor = parseInt(document.getElementById('syok-set').value);
 
     const clsInfo = {
-        1: { pct: [0,15],  name:'Kelas I',   col:'success', hr:'<100',    bp:'Normal',    rr:'14–20', mental:'Normal/Cemas ringan',  rx:'Kristaloid 500–1000 mL, observasi' },
-        2: { pct:[15,30],  name:'Kelas II',  col:'warning', hr:'100–120', bp:'Normal/↓',  rr:'20–30', mental:'Cemas',                rx:'Kristaloid 1500–2000 mL bolus cepat' },
-        3: { pct:[30,40],  name:'Kelas III', col:'danger',  hr:'120–140', bp:'↓↓',        rr:'30–40', mental:'Konfusi',              rx:'Kristaloid + PRC (darah)' },
-        4: { pct:[40,100], name:'Kelas IV',  col:'danger',  hr:'>140',    bp:'↓↓↓',       rr:'>35',   mental:'Letargi/Tidak sadar',  rx:'Transfusi masif, aktifkan MTP' },
+        1: { pct: [0,15],  name:'Kelas I',   col:'success', hr:'<100',    bp:'Normal',    rr:'14–20', mental:'Normal/Cemas ringan',  rx:'Kristaloid 500–1000 mL, observasi', bolusJam:60 },
+        2: { pct:[15,30],  name:'Kelas II',  col:'warning', hr:'100–120', bp:'Normal/↓',  rr:'20–30', mental:'Cemas',                rx:'Kristaloid 1500–2000 mL bolus cepat', bolusJam:30 },
+        3: { pct:[30,40],  name:'Kelas III', col:'danger',  hr:'120–140', bp:'↓↓',        rr:'30–40', mental:'Konfusi',              rx:'Kristaloid + PRC (darah)', bolusJam:20 },
+        4: { pct:[40,100], name:'Kelas IV',  col:'danger',  hr:'>140',    bp:'↓↓↓',       rr:'>35',   mental:'Letargi/Tidak sadar',  rx:'Transfusi masif, aktifkan MTP', bolusJam:15 },
     };
     const d = clsInfo[cls];
     const lossMin = (d.pct[0]/100) * ebv;
     const lossMax = (d.pct[1]/100) * ebv;
     const crysMin = lossMin * 3;
     const crysMax = lossMax * 3;
+    // Estimasi rate resusitasi awal: total kristaloid dibagi waktu pemberian
+    const rateMinJam = parseFloat((crysMin / (d.bolusJam/60)).toFixed(0));
+    const rateMaxJam = parseFloat((crysMax / (d.bolusJam/60)).toFixed(0));
+    const rateMidJam = Math.round((rateMinJam + rateMaxJam) / 2);
 
     let html = `
     <div class="result-grid" style="margin-top:14px;">
@@ -589,6 +669,7 @@ function calcSyok() {
         </div>`;
     }
 
+    html += dripBox([{ label:`Resusitasi awal (est. ~${d.bolusJam} mnt)`, mlJam: rateMidJam }], setFactor);
     document.getElementById('syok-result').innerHTML = html;
 }
 
@@ -598,6 +679,7 @@ function calcLukaBakar() {
     const tbsa = parseFloat(document.getElementById('lb-tbsa').value);
     const group = document.getElementById('lb-group').value;
     const hrs = parseFloat(document.getElementById('lb-hours').value) || 0;
+    const setFactor = parseInt(document.getElementById('lb-set').value);
     if (!w || !tbsa) { alert('Isi semua field'); return; }
 
     let resus24, formula, maint = 0;
@@ -641,6 +723,13 @@ function calcLukaBakar() {
     </div>
     <div class="alert alert-warning" style="margin-top:8px;">⚠️ Target UO: dewasa 0.5–1 mL/kg/jam · anak 1 mL/kg/jam · Gunakan cairan hangat · Hindari koloid 24 jam pertama</div>`;
 
+    const rate8h = parseFloat((half1 / 8).toFixed(1));
+    const rate16h = parseFloat((half2 / 16).toFixed(1));
+    html += dripBox([
+        { label:'8 jam pertama', mlJam: rate8h },
+        { label:'16 jam berikutnya', mlJam: rate16h },
+    ], setFactor);
+
     document.getElementById('lb-result').innerHTML = html;
 }
 
@@ -653,6 +742,9 @@ function calcSepsis() {
 
     const bolus = group === 'child' ? w * 20 : 500;
     const totalAdult30 = w * 30;
+    const setFactor = parseInt(document.getElementById('sep-set').value);
+    const bolusJam = group === 'child' ? (bolus / (10/60)) : (bolus / (30/60));
+    const totalJam30 = parseFloat((totalAdult30 / 3).toFixed(0));
 
     let html = `<div class="result-grid" style="margin-top:14px;">
         <div class="result-item ${cond==='impaired'?'danger':'warning'}">
@@ -697,6 +789,11 @@ function calcSepsis() {
     if (cond === 'impaired') {
         html += `<div class="alert alert-danger" style="margin-top:8px;">⚠️ Gangguan kardio-renal: berikan bolus lebih lambat (25–30 mnt), dosis lebih kecil 250 mL. Pantau tanda edema paru.</div>`;
     }
+
+    const dripRatesSep = group === 'adult'
+        ? [{ label:`Bolus 500 mL (30 mnt)`, mlJam: 1000 }, { label:`Total loading 3 jam (${totalAdult30.toFixed(0)} mL)`, mlJam: totalJam30 }]
+        : [{ label:`Bolus ${bolus.toFixed(0)} mL (10 mnt)`, mlJam: Math.round(bolus * 6) }];
+    html += dripBox(dripRatesSep, setFactor);
 
     document.getElementById('sep-result').innerHTML = html;
 }
