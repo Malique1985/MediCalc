@@ -1,0 +1,1023 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Malayan Medika Kalkulator — Kalkulator Cairan & Obat Emergensi</title>
+    <style>
+        :root {
+            --primary: #0077B6;
+            --primary-dark: #005f8e;
+            --primary-light: #e8f4fd;
+            --secondary: #00B4D8;
+            --success: #2ecc71;
+            --warning: #f39c12;
+            --danger: #e74c3c;
+            --text: #2d3436;
+            --text-light: #636e72;
+            --bg: #f0f4f8;
+            --card: #ffffff;
+            --border: #dfe6e9;
+            --shadow: 0 2px 12px rgba(0,0,0,0.08);
+            --radius: 12px;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+        /* Header */
+        .header { background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%); color: white; padding: 20px 24px; text-align: center; box-shadow: 0 4px 20px rgba(0,119,182,0.3); }
+        .header h1 { font-size: 1.8rem; font-weight: 700; letter-spacing: -0.5px; }
+        .header p { font-size: 0.88rem; opacity: 0.9; margin-top: 4px; }
+
+        /* Container */
+        .container { max-width: 920px; margin: 0 auto; padding: 20px 16px 40px; }
+
+        /* Tabs */
+        .tabs { display: flex; background: white; border-radius: var(--radius); padding: 6px; gap: 4px; margin-bottom: 20px; box-shadow: var(--shadow); }
+        .tab-btn { flex: 1; padding: 12px 6px; border: none; background: transparent; border-radius: 8px; cursor: pointer; font-size: 0.82rem; font-weight: 600; color: var(--text-light); transition: all 0.2s; text-align: center; line-height: 1.3; }
+        .tab-btn:hover { background: var(--primary-light); color: var(--primary); }
+        .tab-btn.active { background: var(--primary); color: white; }
+        .tab-icon { display: block; font-size: 1.25rem; margin-bottom: 3px; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        /* Cards */
+        .card { background: var(--card); border-radius: var(--radius); padding: 22px; margin-bottom: 16px; box-shadow: var(--shadow); }
+        .card-title { font-size: 1rem; font-weight: 700; color: var(--primary); margin-bottom: 16px; padding-bottom: 10px; border-bottom: 2px solid var(--primary-light); display: flex; align-items: center; gap: 8px; }
+
+        /* Forms */
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px; }
+        .form-group { display: flex; flex-direction: column; gap: 5px; }
+        .form-group label { font-size: 0.82rem; font-weight: 600; color: var(--text); }
+        .form-group input, .form-group select { padding: 9px 13px; border: 2px solid var(--border); border-radius: 8px; font-size: 0.92rem; color: var(--text); transition: border-color 0.2s; background: white; width: 100%; }
+        .form-group input:focus, .form-group select:focus { outline: none; border-color: var(--primary); }
+        .form-hint { font-size: 0.72rem; color: var(--text-light); }
+
+        /* Buttons */
+        .btn { padding: 10px 24px; border: none; border-radius: 8px; cursor: pointer; font-size: 0.92rem; font-weight: 600; transition: all 0.2s; }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { background: var(--primary-dark); transform: translateY(-1px); }
+        .btn-reset { background: #dfe6e9; color: var(--text); }
+        .btn-row { margin-top: 16px; display: flex; gap: 8px; }
+
+        /* Sub-tabs */
+        .sub-tabs { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+        .sub-tab-btn { padding: 7px 14px; border: 2px solid var(--border); background: white; border-radius: 20px; cursor: pointer; font-size: 0.82rem; font-weight: 600; color: var(--text-light); transition: all 0.2s; }
+        .sub-tab-btn.active { border-color: var(--primary); background: var(--primary); color: white; }
+        .sub-content { display: none; }
+        .sub-content.active { display: block; }
+
+        /* Results */
+        .result-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-top: 14px; }
+        .result-item { background: var(--primary-light); border-radius: 10px; padding: 14px; text-align: center; border-left: 4px solid var(--primary); }
+        .result-item.warning { background: #fff9e6; border-color: var(--warning); }
+        .result-item.danger { background: #fdf2f2; border-color: var(--danger); }
+        .result-item.success { background: #eafaf1; border-color: var(--success); }
+        .result-label { font-size: 0.72rem; font-weight: 700; color: var(--text-light); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 5px; }
+        .result-value { font-size: 1.3rem; font-weight: 700; color: var(--primary); }
+        .result-unit { font-size: 0.75rem; color: var(--text-light); margin-top: 2px; }
+        .result-box { background: var(--primary-light); border-radius: 10px; padding: 14px; margin-top: 12px; }
+        .result-box h4 { color: var(--primary); margin-bottom: 10px; font-size: 0.9rem; }
+
+        /* Info rows */
+        .info-row { display: flex; justify-content: space-between; align-items: flex-start; padding: 7px 0; border-bottom: 1px solid var(--border); font-size: 0.88rem; gap: 12px; }
+        .info-row:last-child { border-bottom: none; }
+        .info-row .lbl { color: var(--text-light); font-weight: 500; white-space: nowrap; }
+        .info-row .val { font-weight: 700; color: var(--text); text-align: right; }
+
+        /* Alerts */
+        .alert { padding: 10px 14px; border-radius: 8px; font-size: 0.85rem; margin-top: 10px; }
+        .alert-info { background: var(--primary-light); border-left: 4px solid var(--primary); color: #004085; }
+        .alert-warning { background: #fff9e6; border-left: 4px solid var(--warning); color: #856404; }
+        .alert-danger { background: #fdf2f2; border-left: 4px solid var(--danger); color: #721c24; }
+        .alert-success { background: #eafaf1; border-left: 4px solid var(--success); color: #155724; }
+
+        /* Steps */
+        .step-box { background: white; border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; margin-bottom: 8px; font-size: 0.88rem; }
+        .step-num { display: inline-flex; width: 22px; height: 22px; background: var(--primary); color: white; border-radius: 50%; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 700; margin-right: 8px; flex-shrink: 0; }
+
+        /* Drug list */
+        .drug-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(155px, 1fr)); gap: 8px; }
+        .drug-chip { padding: 9px 10px; border: 2px solid var(--border); border-radius: 8px; cursor: pointer; font-size: 0.8rem; font-weight: 600; text-align: center; transition: all 0.2s; background: white; color: var(--text); }
+        .drug-chip:hover { border-color: var(--primary); background: var(--primary-light); color: var(--primary); }
+        .drug-chip.selected { border-color: var(--primary); background: var(--primary); color: white; }
+        .drug-chip.emergency { border-color: #e8b4b4; }
+        .drug-chip.emergency.selected { background: var(--danger); border-color: var(--danger); }
+
+        /* Drug result */
+        .drug-name { font-size: 1.2rem; font-weight: 700; color: var(--primary); }
+        .drug-category-badge { font-size: 0.78rem; padding: 4px 10px; border-radius: 20px; background: var(--primary-light); color: var(--primary); font-weight: 700; }
+        .drug-header-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; flex-wrap: wrap; gap: 8px; }
+        .dose-value { font-size: 1.1rem; font-weight: 700; color: var(--primary); margin-top: 4px; line-height: 1.5; }
+        .dose-value.emerg { color: var(--danger); }
+
+        .divider { height: 1px; background: var(--border); margin: 12px 0; }
+        .hidden { display: none !important; }
+        .highlight { background: #fffbcc; border: 1px solid #f1c40f; border-radius: 6px; padding: 10px 14px; margin-top: 8px; font-size: 0.88rem; }
+
+        /* Table */
+        .rtable { width: 100%; border-collapse: collapse; font-size: 0.88rem; margin-top: 10px; }
+        .rtable th { background: var(--primary); color: white; padding: 9px 12px; text-align: left; }
+        .rtable td { padding: 9px 12px; border-bottom: 1px solid var(--border); }
+        .rtable tr:nth-child(even) td { background: #f8fafc; }
+
+        .footer { text-align: center; padding: 16px; color: #b2bec3; font-size: 0.78rem; margin-top: 8px; }
+
+        @media (max-width: 600px) {
+            .header h1 { font-size: 1.35rem; }
+            .tab-btn { font-size: 0.72rem; padding: 9px 3px; }
+            .tab-icon { font-size: 1.1rem; }
+            .form-grid { grid-template-columns: 1fr; }
+            .result-grid { grid-template-columns: 1fr 1fr; }
+            .drug-list { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); }
+        }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <h1>💊 Malayan Medika Kalkulator</h1>
+    <p>Kalkulator Cairan Maintenance · Resusitasi · Obat Emergensi — Anak & Dewasa</p>
+</div>
+
+<div class="container">
+
+    <!-- Tab Navigation -->
+    <div class="tabs">
+        <button class="tab-btn active" onclick="showTab('maintenance', this)">
+            <span class="tab-icon">💧</span>Cairan Maintenance
+        </button>
+        <button class="tab-btn" onclick="showTab('resusitasi', this)">
+            <span class="tab-icon">🩺</span>Resusitasi Cairan
+        </button>
+        <button class="tab-btn" onclick="showTab('obat', this)">
+            <span class="tab-icon">💉</span>Obat Emergensi IV
+        </button>
+    </div>
+
+    <!-- ========================== TAB 1: MAINTENANCE ========================== -->
+    <div id="tab-maintenance" class="tab-content active">
+        <div class="card">
+            <div class="card-title">💧 Kebutuhan Cairan Maintenance</div>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Berat Badan (kg)</label>
+                    <input type="number" id="maint-weight" placeholder="cth. 15" min="0.5" max="200" step="0.1">
+                </div>
+                <div class="form-group">
+                    <label>Kelompok Pasien</label>
+                    <select id="maint-type" onchange="toggleNeonateAge()">
+                        <option value="child">Anak (Holliday-Segar)</option>
+                        <option value="adult">Dewasa</option>
+                        <option value="neonate">Neonatus (&lt;28 hari)</option>
+                    </select>
+                </div>
+                <div class="form-group" id="maint-age-group" style="display:none">
+                    <label>Usia Neonatus (hari)</label>
+                    <input type="number" id="maint-age" placeholder="cth. 3" min="0" max="28">
+                </div>
+                <div class="form-group">
+                    <label>Kondisi Khusus</label>
+                    <select id="maint-condition">
+                        <option value="1.0">Normal</option>
+                        <option value="1.1">Demam ringan (37.5–38.5 °C) +10%</option>
+                        <option value="1.2">Demam tinggi (&gt;38.5 °C) +20%</option>
+                        <option value="1.5">Luka bakar luas +50%</option>
+                        <option value="0.8">Ventilasi mekanik −20%</option>
+                        <option value="0.6">Gagal jantung/ginjal −40%</option>
+                    </select>
+                </div>
+            </div>
+            <div class="btn-row">
+                <button class="btn btn-primary" onclick="calcMaintenance()">Hitung</button>
+                <button class="btn btn-reset" onclick="resetMaintenance()">Reset</button>
+            </div>
+        </div>
+
+        <div id="maint-result" class="hidden">
+            <div class="card">
+                <div class="card-title">📊 Hasil Perhitungan</div>
+                <div id="maint-formula" class="alert alert-info"></div>
+                <div class="result-grid" id="maint-values"></div>
+                <div id="maint-cairan"></div>
+                <div id="maint-notes"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================== TAB 2: RESUSITASI ========================== -->
+    <div id="tab-resusitasi" class="tab-content">
+        <div class="card">
+            <div class="card-title">🩺 Resusitasi Cairan</div>
+            <div class="sub-tabs">
+                <button class="sub-tab-btn active" onclick="showSubTab('dehidrasi', this)">Dehidrasi</button>
+                <button class="sub-tab-btn" onclick="showSubTab('syok', this)">Syok Hemoragik</button>
+                <button class="sub-tab-btn" onclick="showSubTab('bakar', this)">Luka Bakar</button>
+                <button class="sub-tab-btn" onclick="showSubTab('sepsis', this)">Sepsis / Syok Septik</button>
+            </div>
+
+            <!-- Dehidrasi -->
+            <div id="sub-dehidrasi" class="sub-content active">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Berat Badan (kg)</label>
+                        <input type="number" id="dehid-weight" placeholder="cth. 15" min="0.5" max="200" step="0.1">
+                    </div>
+                    <div class="form-group">
+                        <label>Kelompok</label>
+                        <select id="dehid-group">
+                            <option value="child">Anak</option>
+                            <option value="adult">Dewasa</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Derajat Dehidrasi</label>
+                        <select id="dehid-degree">
+                            <option value="mild">Ringan (~5%)</option>
+                            <option value="moderate">Sedang (~10%)</option>
+                            <option value="severe">Berat (~15%)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Jenis Cairan IV</label>
+                        <select id="dehid-fluid">
+                            <option value="RL">Ringer Laktat (RL)</option>
+                            <option value="NaCl 0.9%">NaCl 0.9% (Normal Saline)</option>
+                            <option value="D5RL">D5 + Ringer Laktat</option>
+                            <option value="D5 NaCl 0.9%">D5 + NaCl 0.9%</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="btn-row">
+                    <button class="btn btn-primary" onclick="calcDehidrasi()">Hitung</button>
+                    <button class="btn btn-reset" onclick="document.getElementById('dehid-result').innerHTML=''">Reset</button>
+                </div>
+                <div id="dehid-result"></div>
+            </div>
+
+            <!-- Syok Hemoragik -->
+            <div id="sub-syok" class="sub-content">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Berat Badan (kg)</label>
+                        <input type="number" id="syok-weight" placeholder="cth. 70" min="1" max="200">
+                    </div>
+                    <div class="form-group">
+                        <label>Kelompok</label>
+                        <select id="syok-group">
+                            <option value="adult">Dewasa</option>
+                            <option value="child">Anak</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Kelas Syok (ATLS)</label>
+                        <select id="syok-class">
+                            <option value="1">Kelas I — &lt;15% EBV</option>
+                            <option value="2">Kelas II — 15–30% EBV</option>
+                            <option value="3">Kelas III — 30–40% EBV</option>
+                            <option value="4">Kelas IV — &gt;40% EBV</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="btn-row">
+                    <button class="btn btn-primary" onclick="calcSyok()">Hitung</button>
+                    <button class="btn btn-reset" onclick="document.getElementById('syok-result').innerHTML=''">Reset</button>
+                </div>
+                <div id="syok-result"></div>
+            </div>
+
+            <!-- Luka Bakar -->
+            <div id="sub-bakar" class="sub-content">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Berat Badan (kg)</label>
+                        <input type="number" id="lb-weight" placeholder="cth. 60" min="1" max="200">
+                    </div>
+                    <div class="form-group">
+                        <label>% TBSA Luka Bakar</label>
+                        <input type="number" id="lb-tbsa" placeholder="cth. 30" min="1" max="100">
+                        <span class="form-hint">Hitung derajat II dan III saja</span>
+                    </div>
+                    <div class="form-group">
+                        <label>Kelompok</label>
+                        <select id="lb-group">
+                            <option value="adult">Dewasa</option>
+                            <option value="child">Anak</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Jam Sejak Kejadian</label>
+                        <input type="number" id="lb-hours" placeholder="cth. 2" min="0" max="24" value="0">
+                        <span class="form-hint">0 = baru saja terjadi</span>
+                    </div>
+                </div>
+                <div class="btn-row">
+                    <button class="btn btn-primary" onclick="calcLukaBakar()">Hitung</button>
+                    <button class="btn btn-reset" onclick="document.getElementById('lb-result').innerHTML=''">Reset</button>
+                </div>
+                <div id="lb-result"></div>
+            </div>
+
+            <!-- Sepsis -->
+            <div id="sub-sepsis" class="sub-content">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Berat Badan (kg)</label>
+                        <input type="number" id="sep-weight" placeholder="cth. 70" min="1" max="200">
+                    </div>
+                    <div class="form-group">
+                        <label>Kelompok</label>
+                        <select id="sep-group">
+                            <option value="adult">Dewasa</option>
+                            <option value="child">Anak</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Fungsi Jantung/Ginjal</label>
+                        <select id="sep-condition">
+                            <option value="normal">Normal</option>
+                            <option value="impaired">Terganggu (hati-hati volume)</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="btn-row">
+                    <button class="btn btn-primary" onclick="calcSepsis()">Hitung</button>
+                    <button class="btn btn-reset" onclick="document.getElementById('sep-result').innerHTML=''">Reset</button>
+                </div>
+                <div id="sep-result"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================== TAB 3: OBAT ========================== -->
+    <div id="tab-obat" class="tab-content">
+        <div class="card">
+            <div class="card-title">⚙️ Data Pasien</div>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Berat Badan (kg)</label>
+                    <input type="number" id="drug-weight" placeholder="cth. 70" min="0.5" max="200" step="0.1" oninput="renderDrugResult()">
+                </div>
+                <div class="form-group">
+                    <label>Kelompok</label>
+                    <select id="drug-group" onchange="renderDrugResult()">
+                        <option value="child">Anak</option>
+                        <option value="adult">Dewasa</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-title">💉 Pilih Obat <span style="font-size:0.78rem;color:var(--text-light);font-weight:400;">🚨 = Emergensi kritis</span></div>
+            <div class="drug-list" id="drug-list"></div>
+        </div>
+
+        <div id="drug-result-card" class="card hidden">
+            <div id="drug-result-content"></div>
+        </div>
+    </div>
+
+</div>
+
+<div class="footer">
+    ⚕️ Hanya untuk keperluan klinis terlatih — selalu verifikasi dengan protokol lokal & konfirmasi senior<br>
+    Malayan Medika Kalkulator v1.0 · Referensi: PALS, ATLS, AHA, WHO, IDAI, Surviving Sepsis Campaign
+</div>
+
+<script>
+// ─── TAB MANAGEMENT ───────────────────────────────────────────────────────────
+function showTab(name, btn) {
+    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('tab-' + name).classList.add('active');
+    btn.classList.add('active');
+}
+
+function showSubTab(name, btn) {
+    document.querySelectorAll('.sub-content').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.sub-tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('sub-' + name).classList.add('active');
+    btn.classList.add('active');
+}
+
+function toggleNeonateAge() {
+    const v = document.getElementById('maint-type').value;
+    document.getElementById('maint-age-group').style.display = v === 'neonate' ? 'block' : 'none';
+}
+
+// ─── MAINTENANCE ──────────────────────────────────────────────────────────────
+function maintPerDay(weight, type, ageDay) {
+    if (type === 'neonate') {
+        const ml = ageDay <= 1 ? 60 : ageDay <= 2 ? 80 : ageDay <= 3 ? 100 : ageDay <= 7 ? 120 : 150;
+        return { ml: weight * ml, formula: `Neonatus hari ke-${ageDay}: ${ml} mL/kg/hari × ${weight} kg` };
+    }
+    if (type === 'child') {
+        if (weight <= 10) return { ml: weight * 100, formula: `${weight} kg × 100 mL/kg/hari (Holliday-Segar ≤10 kg)` };
+        if (weight <= 20) { const ml = 1000 + (weight-10)*50; return { ml, formula: `1000 + (${weight}−10)×50 = ${ml} mL/hari` }; }
+        const ml = 1500 + (weight-20)*20; return { ml, formula: `1500 + (${weight}−20)×20 = ${ml} mL/hari` };
+    }
+    return { ml: weight * 30, formula: `Dewasa: ${weight} kg × 30 mL/kg/hari` };
+}
+
+function calcMaintenance() {
+    const w = parseFloat(document.getElementById('maint-weight').value);
+    const type = document.getElementById('maint-type').value;
+    const factor = parseFloat(document.getElementById('maint-condition').value);
+    const ageDay = parseInt(document.getElementById('maint-age').value) || 1;
+    if (!w || w <= 0) { alert('Masukkan berat badan yang valid'); return; }
+
+    const base = maintPerDay(w, type, ageDay);
+    const daily = base.ml * factor;
+    const hrly = daily / 24;
+    const perMin = hrly / 60;
+    const gtt = perMin * 20;
+
+    document.getElementById('maint-formula').textContent = '📐 ' + base.formula + (factor !== 1 ? ` × ${factor} (koreksi)` : '');
+    document.getElementById('maint-values').innerHTML = `
+        <div class="result-item"><div class="result-label">Per Hari</div><div class="result-value">${daily.toFixed(0)}</div><div class="result-unit">mL/hari</div></div>
+        <div class="result-item"><div class="result-label">Per Jam</div><div class="result-value">${hrly.toFixed(1)}</div><div class="result-unit">mL/jam</div></div>
+        <div class="result-item"><div class="result-label">Per Menit</div><div class="result-value">${perMin.toFixed(2)}</div><div class="result-unit">mL/menit</div></div>
+        <div class="result-item"><div class="result-label">Tetes/Menit</div><div class="result-value">${gtt.toFixed(0)}</div><div class="result-unit">gtt/mnt (20 gtt/mL)</div></div>
+    `;
+
+    let cairanHTML = '';
+    if (type === 'neonate') {
+        cairanHTML = `<div class="result-box"><h4>💊 Rekomendasi Cairan</h4>
+        <div class="info-row"><span class="lbl">Hari 1–3</span><span class="val">D10 + elektrolit (tanpa KCl)</span></div>
+        <div class="info-row"><span class="lbl">Hari 3–7</span><span class="val">D10 + 0.18% NaCl + KCl 10 mEq/500 mL</span></div>
+        <div class="info-row"><span class="lbl">&gt;7 hari</span><span class="val">D5 + 0.18% NaCl + KCl</span></div></div>`;
+    } else if (type === 'child') {
+        cairanHTML = `<div class="result-box"><h4>💊 Rekomendasi Cairan</h4>
+        <div class="info-row"><span class="lbl">&lt;2 tahun</span><span class="val">D5 0.18% NaCl atau D5RL</span></div>
+        <div class="info-row"><span class="lbl">≥2 tahun</span><span class="val">D5 0.45% NaCl atau D5RL</span></div>
+        <div class="info-row"><span class="lbl">Suplemen kalium</span><span class="val">KCl 20 mEq/L bila diuresis sudah ada</span></div></div>`;
+    } else {
+        cairanHTML = `<div class="result-box"><h4>💊 Rekomendasi Cairan</h4>
+        <div class="info-row"><span class="lbl">Pilihan utama</span><span class="val">Ringer Laktat (RL)</span></div>
+        <div class="info-row"><span class="lbl">Alternatif</span><span class="val">NaCl 0.9% atau Ringer Asetat</span></div>
+        <div class="info-row"><span class="lbl">Suplemen K+</span><span class="val">KCl 20 mEq/L jika dibutuhkan</span></div></div>`;
+    }
+    document.getElementById('maint-cairan').innerHTML = cairanHTML;
+
+    const notesHTML = factor !== 1.0
+        ? `<div class="alert alert-warning" style="margin-top:8px;">⚠️ Faktor koreksi ${factor}× diterapkan. Monitor keseimbangan cairan ketat.</div>` : '';
+    document.getElementById('maint-notes').innerHTML = notesHTML;
+    document.getElementById('maint-result').classList.remove('hidden');
+}
+
+function resetMaintenance() {
+    document.getElementById('maint-weight').value = '';
+    document.getElementById('maint-result').classList.add('hidden');
+}
+
+// ─── DEHIDRASI ─────────────────────────────────────────────────────────────────
+function calcDehidrasi() {
+    const w = parseFloat(document.getElementById('dehid-weight').value);
+    const group = document.getElementById('dehid-group').value;
+    const deg = document.getElementById('dehid-degree').value;
+    const fluid = document.getElementById('dehid-fluid').value;
+    if (!w || w <= 0) { alert('Masukkan berat badan yang valid'); return; }
+
+    const pct = deg === 'mild' ? 5 : deg === 'moderate' ? 10 : 15;
+    const deficit = (pct / 100) * w * 1000;
+    const maint = maintPerDay(w, group === 'child' ? 'child' : 'adult', 1).ml;
+
+    let html = '';
+
+    if (deg === 'mild' && group === 'child') {
+        html = `<div class="alert alert-success" style="margin-top:14px;"><strong>📋 Rencana A — Terapi Oral (ORS di rumah)</strong></div>
+        <div class="result-grid">
+            <div class="result-item success"><div class="result-label">Defisit</div><div class="result-value">${deficit.toFixed(0)}</div><div class="result-unit">mL</div></div>
+            <div class="result-item success"><div class="result-label">ORS 4 jam</div><div class="result-value">${(w*75).toFixed(0)}</div><div class="result-unit">mL (75 mL/kg)</div></div>
+            <div class="result-item success"><div class="result-label">Maintenance</div><div class="result-value">${maint.toFixed(0)}</div><div class="result-unit">mL/hari</div></div>
+        </div>`;
+    } else if (deg === 'mild' && group === 'adult') {
+        html = `<div class="alert alert-success" style="margin-top:14px;"><strong>📋 Dehidrasi Ringan Dewasa</strong></div>
+        <div class="result-grid">
+            <div class="result-item success"><div class="result-label">Defisit</div><div class="result-value">${deficit.toFixed(0)}</div><div class="result-unit">mL</div></div>
+            <div class="result-item success"><div class="result-label">Berikan dalam 4 jam</div><div class="result-value">${(deficit/4).toFixed(0)}</div><div class="result-unit">mL/jam (IV/oral)</div></div>
+            <div class="result-item success"><div class="result-label">Maintenance</div><div class="result-value">${(maint/24).toFixed(1)}</div><div class="result-unit">mL/jam</div></div>
+        </div>`;
+    } else if (deg === 'moderate') {
+        const bolus = group === 'child' ? w * 20 : 500;
+        const postBolus = Math.max(0, deficit - bolus);
+        html = `<div class="alert alert-warning" style="margin-top:14px;"><strong>📋 Rencana B — Rehidrasi Terpimpin IV</strong></div>
+        <div class="result-grid">
+            <div class="result-item warning"><div class="result-label">Defisit Total</div><div class="result-value">${deficit.toFixed(0)}</div><div class="result-unit">mL</div></div>
+            <div class="result-item warning"><div class="result-label">Bolus Awal</div><div class="result-value">${bolus.toFixed(0)}</div><div class="result-unit">mL ${group==='child'?'(20 mL/kg)':''} / 30 mnt</div></div>
+            <div class="result-item warning"><div class="result-label">Sisa Defisit</div><div class="result-value">${postBolus.toFixed(0)}</div><div class="result-unit">mL (8 jam)</div></div>
+            <div class="result-item warning"><div class="result-label">Rate Sisa</div><div class="result-value">${(postBolus/8).toFixed(1)}</div><div class="result-unit">mL/jam</div></div>
+        </div>
+        <div class="result-box" style="margin-top:10px;"><h4>📅 Rencana Cairan (${fluid})</h4>
+            <div class="step-box"><span class="step-num">1</span><strong>Bolus:</strong> ${bolus.toFixed(0)} mL dalam 30 menit</div>
+            <div class="step-box"><span class="step-num">2</span><strong>8 jam:</strong> ${postBolus.toFixed(0)} mL sisa defisit → <strong>${(postBolus/8).toFixed(1)} mL/jam</strong></div>
+            <div class="step-box"><span class="step-num">3</span><strong>Maintenance:</strong> tambahkan ${(maint/24).toFixed(1)} mL/jam ke rate di atas</div>
+        </div>`;
+    } else { // severe
+        const bolus = group === 'child' ? w * 20 : 1000;
+        const half1 = deficit / 2;
+        const half2 = deficit / 2;
+        const rate8 = ((half1 + maint * 8/24) / 8).toFixed(1);
+        const rate16 = ((half2 + maint * 16/24) / 16).toFixed(1);
+        html = `<div class="alert alert-danger" style="margin-top:14px;"><strong>📋 Rencana C — Resusitasi IV Segera</strong></div>
+        <div class="result-grid">
+            <div class="result-item danger"><div class="result-label">Defisit Total</div><div class="result-value">${deficit.toFixed(0)}</div><div class="result-unit">mL</div></div>
+            <div class="result-item danger"><div class="result-label">Bolus SEGERA</div><div class="result-value">${bolus.toFixed(0)}</div><div class="result-unit">mL / &lt;30 mnt</div></div>
+            <div class="result-item danger"><div class="result-label">Total 24 Jam</div><div class="result-value">${(deficit+maint).toFixed(0)}</div><div class="result-unit">mL</div></div>
+        </div>
+        <div class="result-box" style="margin-top:10px;"><h4>📅 Rencana Cairan (${fluid})</h4>
+            <div class="step-box"><span class="step-num">1</span><strong>Bolus segera:</strong> ${bolus.toFixed(0)} mL dalam ${group==='child'?'30':' 30–60'} menit</div>
+            <div class="step-box"><span class="step-num">2</span><strong>8 jam pertama:</strong> ½ defisit + maintenance 8 jam → <strong>${rate8} mL/jam</strong></div>
+            <div class="step-box"><span class="step-num">3</span><strong>16 jam berikutnya:</strong> ½ defisit + maintenance 16 jam → <strong>${rate16} mL/jam</strong></div>
+        </div>`;
+    }
+
+    html += `<div class="alert alert-info" style="margin-top:8px;">⚕️ Monitor: diuresis target ${group==='child'?'1–2':'0.5–1'} mL/kg/jam · Tanda vital tiap 1–2 jam · Periksa elektrolit</div>`;
+    document.getElementById('dehid-result').innerHTML = html;
+}
+
+// ─── SYOK HEMORAGIK ────────────────────────────────────────────────────────────
+function calcSyok() {
+    const w = parseFloat(document.getElementById('syok-weight').value);
+    const cls = parseInt(document.getElementById('syok-class').value);
+    const group = document.getElementById('syok-group').value;
+    if (!w || w <= 0) { alert('Masukkan berat badan yang valid'); return; }
+
+    const ebvKg = group === 'child' ? 80 : 70;
+    const ebv = w * ebvKg;
+
+    const clsInfo = {
+        1: { pct: [0,15],  name:'Kelas I',   col:'success', hr:'<100',    bp:'Normal',    rr:'14–20', mental:'Normal/Cemas ringan',  rx:'Kristaloid 500–1000 mL, observasi' },
+        2: { pct:[15,30],  name:'Kelas II',  col:'warning', hr:'100–120', bp:'Normal/↓',  rr:'20–30', mental:'Cemas',                rx:'Kristaloid 1500–2000 mL bolus cepat' },
+        3: { pct:[30,40],  name:'Kelas III', col:'danger',  hr:'120–140', bp:'↓↓',        rr:'30–40', mental:'Konfusi',              rx:'Kristaloid + PRC (darah)' },
+        4: { pct:[40,100], name:'Kelas IV',  col:'danger',  hr:'>140',    bp:'↓↓↓',       rr:'>35',   mental:'Letargi/Tidak sadar',  rx:'Transfusi masif, aktifkan MTP' },
+    };
+    const d = clsInfo[cls];
+    const lossMin = (d.pct[0]/100) * ebv;
+    const lossMax = (d.pct[1]/100) * ebv;
+    const crysMin = lossMin * 3;
+    const crysMax = lossMax * 3;
+
+    let html = `
+    <div class="result-grid" style="margin-top:14px;">
+        <div class="result-item ${d.col}"><div class="result-label">Est. Kehilangan Darah</div><div class="result-value">${lossMin.toFixed(0)}–${lossMax.toFixed(0)}</div><div class="result-unit">mL (${d.pct[0]}–${d.pct[1]}% EBV)</div></div>
+        <div class="result-item ${d.col}"><div class="result-label">EBV Pasien</div><div class="result-value">${ebv.toFixed(0)}</div><div class="result-unit">mL (${ebvKg} mL/kg)</div></div>
+        <div class="result-item ${d.col}"><div class="result-label">Kristaloid (3:1)</div><div class="result-value">${crysMin.toFixed(0)}–${crysMax.toFixed(0)}</div><div class="result-unit">mL</div></div>
+    </div>
+    <div class="result-box" style="margin-top:10px;"><h4>📊 Tanda Klinis ${d.name}</h4>
+        <div class="info-row"><span class="lbl">Heart Rate</span><span class="val">${d.hr} bpm</span></div>
+        <div class="info-row"><span class="lbl">Tekanan Darah</span><span class="val">${d.bp}</span></div>
+        <div class="info-row"><span class="lbl">Respiratory Rate</span><span class="val">${d.rr} /mnt</span></div>
+        <div class="info-row"><span class="lbl">Status Mental</span><span class="val">${d.mental}</span></div>
+    </div>
+    <div class="result-box" style="margin-top:8px; background:#fff9e6;"><h4>🏥 Manajemen</h4><p style="font-size:0.88rem;">${d.rx}</p>`;
+
+    if (cls >= 3) {
+        html += `<div class="divider"></div><p style="font-size:0.85rem;color:#c0392b;"><strong>⚠️ Protokol Transfusi Masif:</strong><br>
+        Ratio PRC : FFP : Trombosit = 1 : 1 : 1<br>
+        Target: Hb >8 g/dL · INR <1.5 · PLT >50.000/µL<br>
+        Pertimbangkan: Tranexamic Acid 1 g IV bolus dalam 10 menit (jika &lt;3 jam)</p>`;
+    }
+    html += `</div>`;
+
+    if (group === 'child') {
+        html += `<div class="result-box" style="margin-top:8px;"><h4>👶 Protokol Anak (PALS)</h4>
+            <div class="info-row"><span class="lbl">Bolus awal</span><span class="val">20 mL/kg RL dalam 5–10 mnt</span></div>
+            <div class="info-row"><span class="lbl">Dapat diulang</span><span class="val">Hingga 3× (max 60 mL/kg) atau ada tanda overload</span></div>
+            <div class="info-row"><span class="lbl">Transfusi PRC</span><span class="val">10–15 mL/kg jika Hb &lt;7 g/dL</span></div>
+        </div>`;
+    }
+
+    document.getElementById('syok-result').innerHTML = html;
+}
+
+// ─── LUKA BAKAR ───────────────────────────────────────────────────────────────
+function calcLukaBakar() {
+    const w = parseFloat(document.getElementById('lb-weight').value);
+    const tbsa = parseFloat(document.getElementById('lb-tbsa').value);
+    const group = document.getElementById('lb-group').value;
+    const hrs = parseFloat(document.getElementById('lb-hours').value) || 0;
+    if (!w || !tbsa) { alert('Isi semua field'); return; }
+
+    let resus24, formula, maint = 0;
+    if (group === 'adult') {
+        resus24 = 4 * w * tbsa;
+        formula = `Parkland: 4 mL × ${w} kg × ${tbsa}% TBSA = ${resus24} mL`;
+    } else {
+        resus24 = 3 * w * tbsa;
+        maint = maintPerDay(w, 'child', 1).ml;
+        formula = `Modified Parkland (anak): 3 mL × ${w} kg × ${tbsa}% = ${resus24} mL + maintenance ${maint} mL`;
+    }
+
+    const total24 = resus24 + maint;
+    const half1 = total24 / 2;
+    const half2 = total24 / 2;
+    const rate8 = (half1 / 8).toFixed(1);
+    const rate16 = (half2 / 16).toFixed(1);
+
+    let html = `<div class="alert alert-info" style="margin-top:14px;">📐 ${formula}</div>
+    <div class="result-grid" style="margin-top:10px;">
+        <div class="result-item danger"><div class="result-label">Total 24 Jam (RL)</div><div class="result-value">${total24.toFixed(0)}</div><div class="result-unit">mL</div></div>
+        <div class="result-item warning"><div class="result-label">8 Jam Pertama</div><div class="result-value">${half1.toFixed(0)}</div><div class="result-unit">mL → ${rate8} mL/jam</div></div>
+        <div class="result-item"><div class="result-label">16 Jam Berikutnya</div><div class="result-value">${half2.toFixed(0)}</div><div class="result-unit">mL → ${rate16} mL/jam</div></div>
+    </div>`;
+
+    if (hrs > 0) {
+        const delivered = (half1 / 8) * hrs;
+        const remaining = Math.max(0, half1 - delivered);
+        const remHrs = Math.max(0, 8 - hrs);
+        const adjRate = remHrs > 0 ? (remaining / remHrs).toFixed(1) : '—';
+        html += `<div class="result-box" style="margin-top:10px;"><h4>⏱️ Penyesuaian (${hrs} jam telah berlalu)</h4>
+            <div class="info-row"><span class="lbl">Volume terhitung</span><span class="val">${delivered.toFixed(0)} mL</span></div>
+            <div class="info-row"><span class="lbl">Sisa 8 jam pertama</span><span class="val">${remaining.toFixed(0)} mL dalam ${remHrs.toFixed(1)} jam</span></div>
+            <div class="info-row"><span class="lbl">Rate sekarang</span><span class="val"><strong>${adjRate} mL/jam</strong></span></div>
+        </div>`;
+    }
+
+    html += `<div class="result-box" style="margin-top:8px;"><h4>💊 24 Jam Kedua</h4>
+        <div class="info-row"><span class="lbl">Koloid (albumin 5%)</span><span class="val">${(0.35 * w * tbsa).toFixed(0)} mL (0.35 mL/kg/%TBSA)</span></div>
+        <div class="info-row"><span class="lbl">D5W</span><span class="val">Sesuai kebutuhan, pertahankan UO</span></div>
+    </div>
+    <div class="alert alert-warning" style="margin-top:8px;">⚠️ Target UO: dewasa 0.5–1 mL/kg/jam · anak 1 mL/kg/jam · Gunakan cairan hangat · Hindari koloid 24 jam pertama</div>`;
+
+    document.getElementById('lb-result').innerHTML = html;
+}
+
+// ─── SEPSIS ────────────────────────────────────────────────────────────────────
+function calcSepsis() {
+    const w = parseFloat(document.getElementById('sep-weight').value);
+    const group = document.getElementById('sep-group').value;
+    const cond = document.getElementById('sep-condition').value;
+    if (!w || w <= 0) { alert('Masukkan berat badan yang valid'); return; }
+
+    const bolus = group === 'child' ? w * 20 : 500;
+    const totalAdult30 = w * 30;
+
+    let html = `<div class="result-grid" style="margin-top:14px;">
+        <div class="result-item ${cond==='impaired'?'danger':'warning'}">
+            <div class="result-label">Bolus Kristaloid</div>
+            <div class="result-value">${bolus.toFixed(0)}</div>
+            <div class="result-unit">mL ${group==='child'?'(20 mL/kg)':'/ 15–30 mnt'}</div>
+        </div>`;
+
+    if (group === 'adult') {
+        html += `<div class="result-item ${cond==='impaired'?'danger':'warning'}">
+            <div class="result-label">Total Loading 3 Jam</div>
+            <div class="result-value">${totalAdult30.toFixed(0)}</div>
+            <div class="result-unit">mL (30 mL/kg)</div>
+        </div>`;
+    }
+    html += `</div>`;
+
+    if (group === 'adult') {
+        html += `<div class="result-box" style="margin-top:10px;"><h4>📋 Protokol Dewasa (Surviving Sepsis Campaign 2021)</h4>
+            <div class="step-box"><span class="step-num">1</span><strong>Jam 1:</strong> Bolus 500 mL RL, evaluasi respons setelah tiap bolus</div>
+            <div class="step-box"><span class="step-num">2</span><strong>3 jam pertama:</strong> Total ${totalAdult30.toFixed(0)} mL (30 mL/kg) kristaloid</div>
+            <div class="step-box"><span class="step-num">3</span><strong>Titrasi:</strong> Lanjutkan bolus 250–500 mL jika ada tanda hipoperfusi</div>
+            <div class="step-box"><span class="step-num">4</span><strong>Vasopressor:</strong> Norepinefrin jika MAP &lt;65 mmHg setelah cairan adekuat</div>
+        </div>`;
+    } else {
+        html += `<div class="result-box" style="margin-top:10px;"><h4>📋 Protokol Anak (PALS/WHO Sepsis)</h4>
+            <div class="step-box"><span class="step-num">1</span><strong>Bolus:</strong> 20 mL/kg RL/NS dalam 5–10 menit</div>
+            <div class="step-box"><span class="step-num">2</span><strong>Evaluasi:</strong> HR, CRT, MAP, kesadaran — setiap bolus</div>
+            <div class="step-box"><span class="step-num">3</span><strong>Ulangi:</strong> Hingga 3× (60 mL/kg total) atau tanda overload</div>
+            <div class="step-box"><span class="step-num">4</span><strong>Vasopressor:</strong> Dopamin atau Epinefrin jika tidak respons</div>
+        </div>`;
+    }
+
+    html += `<div class="result-box" style="margin-top:8px;"><h4>🎯 Target Resusitasi</h4>
+        <div class="info-row"><span class="lbl">Tekanan darah</span><span class="val">${group==='adult'?'MAP ≥65 mmHg':'TD normal untuk usia'}</span></div>
+        <div class="info-row"><span class="lbl">Urine output</span><span class="val">${group==='child'?'≥1 mL/kg/jam':'≥0.5 mL/kg/jam'}</span></div>
+        <div class="info-row"><span class="lbl">Laktat</span><span class="val">&lt;2 mmol/L atau turun &gt;10% per 2 jam</span></div>
+        <div class="info-row"><span class="lbl">Capillary refill</span><span class="val">≤2 detik</span></div>
+        <div class="info-row"><span class="lbl">SpO2</span><span class="val">≥94%</span></div>
+    </div>`;
+
+    if (cond === 'impaired') {
+        html += `<div class="alert alert-danger" style="margin-top:8px;">⚠️ Gangguan kardio-renal: berikan bolus lebih lambat (25–30 mnt), dosis lebih kecil 250 mL. Pantau tanda edema paru.</div>`;
+    }
+
+    document.getElementById('sep-result').innerHTML = html;
+}
+
+// ─── EMERGENCY DRUGS ──────────────────────────────────────────────────────────
+const DRUGS = [
+    {
+        id:'epi-arrest', name:'Epinefrin (Henti Jantung)', cat:'Kardiovaskular', emerg:true,
+        indication:'Henti jantung — VF / VT tanpa nadi / PEA / Asistol',
+        conc:'0.1 mg/mL (1:10.000)',
+        child:{ v:0.01, u:'mg/kg', max:1, route:'IV/IO bolus', freq:'Tiap 3–5 menit', notes:'Max 1 mg/dosis. Volume: dosis ÷ 0.1 mL' },
+        adult:{ fixed:1, u:'mg', route:'IV/IO bolus', freq:'Tiap 3–5 menit', notes:'Dapat diulang tiap 3–5 mnt' },
+        prepare:'Encerkan 1 mL epinefrin 1:1000 + 9 mL NaCl 0.9% → 0.1 mg/mL (1:10.000)',
+        volFn:(dose)=>`${(dose/0.1).toFixed(1)} mL (1:10.000)`
+    },
+    {
+        id:'epi-anaphylaxis', name:'Epinefrin (Anafilaksis)', cat:'Emergensi', emerg:true,
+        indication:'Anafilaksis berat / syok anafilaktik',
+        conc:'1 mg/mL (1:1.000)',
+        child:{ v:0.01, u:'mg/kg', max:0.5, route:'IM vastus lateralis', freq:'Ulangi tiap 5–15 mnt', notes:'Max 0.5 mg. Injeksi IM paha anterolateral' },
+        adult:{ fixed:0.5, u:'mg', route:'IM paha', freq:'Ulangi tiap 5–15 mnt', notes:'0.5 mL dari sediaan 1:1000' },
+        prepare:'Gunakan sediaan 1:1000 langsung untuk IM',
+        volFn:(dose)=>`${(dose/1).toFixed(2)} mL (1:1.000)`
+    },
+    {
+        id:'atropine', name:'Atropin', cat:'Kardiovaskular', emerg:false,
+        indication:'Bradikardia simtomatik, preanestesi, keracunan organofosfat',
+        conc:'0.25 mg/mL atau 1 mg/mL',
+        child:{ v:0.02, u:'mg/kg', min:0.1, max:0.5, route:'IV bolus cepat', freq:'Tiap 5 mnt, max 3 mg total', notes:'Min 0.1 mg (hindari bradikardia paradoks)' },
+        adult:{ fixed:0.5, u:'mg', route:'IV bolus', freq:'Tiap 3–5 mnt, max 3 mg', notes:'Untuk OFP/karbamat: dosis jauh lebih tinggi' },
+        prepare:'Berikan bolus IV cepat',
+        volFn:(dose)=>`${(dose/0.25).toFixed(2)} mL (0.25 mg/mL) atau ${(dose/1).toFixed(2)} mL (1 mg/mL)`
+    },
+    {
+        id:'adenosine', name:'Adenosin', cat:'Antiaritmia', emerg:false,
+        indication:'SVT (Supraventrikular Takikardia)',
+        conc:'3 mg/mL',
+        child:{ v:0.1, u:'mg/kg', max:6, route:'IV rapid bolus proksimal', freq:'Dosis 2: 0.2 mg/kg (max 12 mg)', notes:'Flush segera 10–20 mL NS. Sangat singkat kerjanya' },
+        adult:{ fixed:6, u:'mg', route:'IV rapid bolus proksimal', freq:'Dosis 2: 12 mg jika perlu', notes:'Injeksi SANGAT CEPAT, flush 20 mL NS segera' },
+        prepare:'Siapkan di syringe terpisah dengan flush NS 20 mL. Berikan di vena antekubiti atau lebih proksimal',
+        volFn:(dose)=>`${(dose/3).toFixed(2)} mL (3 mg/mL)`
+    },
+    {
+        id:'amiodarone', name:'Amiodaron', cat:'Antiaritmia', emerg:true,
+        indication:'VF/VT tanpa nadi (arrest); takikardia ventrikel stabil',
+        conc:'50 mg/mL',
+        child:{ v:5, u:'mg/kg', max:300, route:'IV/IO', freq:'Max 3× dalam 24 jam', notes:'Arrest: bolus; Stabil: encerkan dalam D5W, infus 20–60 mnt' },
+        adult:{ fixed:300, u:'mg', route:'IV bolus (arrest)', freq:'Dapat +150 mg sekali lagi', notes:'Infus maintenance: 1 mg/mnt × 6 jam, lalu 0.5 mg/mnt' },
+        prepare:'Encerkan dalam D5W (JANGAN NaCl — presipitasi). Gunakan jalur vena besar',
+        volFn:(dose)=>`${(dose/50).toFixed(1)} mL (50 mg/mL)`
+    },
+    {
+        id:'lidocaine', name:'Lidokain', cat:'Antiaritmia', emerg:false,
+        indication:'VF/VT (alternatif amiodaron), anestesi lokal, antinyeri IV',
+        conc:'20 mg/mL (2%)',
+        child:{ v:1, u:'mg/kg', max:100, route:'IV bolus', freq:'Infus: 20–50 mcg/kg/mnt', notes:'Max 3 mg/kg dosis total' },
+        adult:{ v:1.5, u:'mg/kg', route:'IV bolus', freq:'Ulangi 0.75 mg/kg ×2, lalu infus 1–4 mg/mnt', notes:'Max loading 3 mg/kg' },
+        prepare:'Bolus IV 2–3 menit. Infus: encerkan dalam D5W',
+        volFn:(dose)=>`${(dose/20).toFixed(2)} mL (20 mg/mL = 2%)`
+    },
+    {
+        id:'dopamine', name:'Dopamin', cat:'Vasopressor', emerg:false, isInfusion:true,
+        indication:'Syok kardiogenik, syok septik, hipotensi',
+        conc:'Infus: 200 mg dalam 250 mL D5W → 800 mcg/mL',
+        child:{ range:[2,20], u:'mcg/kg/mnt', route:'Infus IV kontinyu', freq:'Titrasi per respons', notes:'Rendah(<5): renal; Sedang(5–10): inotrop; Tinggi(>10): vasopresor' },
+        adult:{ range:[2,20], u:'mcg/kg/mnt', route:'Infus IV kontinyu', freq:'Titrasi per respons', notes:'Titrasi sesuai hemodinamik' },
+        prepare:'Larutkan 200 mg dopamin dalam 250 mL D5W → 800 mcg/mL',
+        concMcgMl: 800
+    },
+    {
+        id:'dobutamine', name:'Dobutamin', cat:'Inotropik', emerg:false, isInfusion:true,
+        indication:'Gagal jantung akut, syok kardiogenik, low cardiac output',
+        conc:'Infus: 250 mg dalam 250 mL D5W → 1000 mcg/mL',
+        child:{ range:[2,20], u:'mcg/kg/mnt', route:'Infus IV kontinyu', freq:'Mulai 2–5 mcg/kg/mnt', notes:'Titrasi bertahap' },
+        adult:{ range:[2,20], u:'mcg/kg/mnt', route:'Infus IV kontinyu', freq:'Mulai 2.5 mcg/kg/mnt', notes:'Tidak menurunkan SVR seperti dopamin' },
+        prepare:'Larutkan 250 mg dalam 250 mL D5W → 1000 mcg/mL',
+        concMcgMl: 1000
+    },
+    {
+        id:'norepinephrine', name:'Norepinefrin', cat:'Vasopressor', emerg:true, isInfusion:true,
+        indication:'Syok septik, vasoplegia, hipotensi refrakter',
+        conc:'Infus: 4 mg dalam 250 mL D5W → 16 mcg/mL',
+        child:{ range:[0.05,2], u:'mcg/kg/mnt', route:'Infus IV sentral', freq:'Mulai 0.05–0.1 mcg/kg/mnt', notes:'Titrasi ke MAP target. Lebih baik via CVC' },
+        adult:{ range:[0.05,2], u:'mcg/kg/mnt', route:'Infus IV sentral', freq:'First-line vasopressor sepsis', notes:'Target MAP ≥65 mmHg' },
+        prepare:'Larutkan 4 mg norepinefrin dalam 250 mL D5W → 16 mcg/mL. Hindari ekstravasasi',
+        concMcgMl: 16
+    },
+    {
+        id:'midazolam', name:'Midazolam', cat:'Sedasi', emerg:false,
+        indication:'Sedasi prosedural, status epileptikus, premedikasi, ansiolitik',
+        conc:'5 mg/mL',
+        child:{ v:0.1, u:'mg/kg', max:5, route:'IV perlahan / IM / Intranasal', freq:'Titrasi, dapat diulang', notes:'Intranasal: 0.2–0.3 mg/kg; IM: 0.1–0.15 mg/kg' },
+        adult:{ fixed:2.5, u:'mg (titrasi)', route:'IV perlahan', freq:'Titrasi 1–2 mg tiap 2–3 mnt', notes:'Total biasanya 2.5–5 mg untuk sedasi ringan' },
+        prepare:'Encerkan ke 1 mg/mL untuk titrasi lebih akurat',
+        volFn:(dose)=>`${(dose/5).toFixed(2)} mL (5 mg/mL)`
+    },
+    {
+        id:'ketamine', name:'Ketamin', cat:'Anestesi/Analgesik', emerg:false,
+        indication:'Induksi RSI, sedasi prosedural, analgesia (bronkospasme)',
+        conc:'10 mg/mL atau 50 mg/mL',
+        child:{ v:1.5, u:'mg/kg', route:'IV bolus', freq:'Dosis tunggal (RSI)', notes:'IV: 1–2 mg/kg; IM: 4–6 mg/kg; Prosedural: 0.5–1 mg/kg IV' },
+        adult:{ v:1.5, u:'mg/kg', route:'IV bolus', freq:'Dosis tunggal (RSI)', notes:'RSI: 1.5 mg/kg; Analgesi: 0.1–0.3 mg/kg; IM: 4–6 mg/kg' },
+        prepare:'Encerkan ke 10 mg/mL untuk IV. Kerjanya cepat (30–60 dtk IV)',
+        volFn:(dose)=>`${(dose/10).toFixed(2)} mL (10 mg/mL)`
+    },
+    {
+        id:'rocuronium', name:'Rokuronim', cat:'Pelemas Otot', emerg:false,
+        indication:'RSI, relaksasi intubasi elektif',
+        conc:'10 mg/mL',
+        child:{ v:1.0, u:'mg/kg', route:'IV rapid bolus', freq:'Dosis tunggal', notes:'RSI: 1.2 mg/kg; Elektif: 0.6 mg/kg. Reversal: Sugammadex 16 mg/kg' },
+        adult:{ v:1.2, u:'mg/kg', route:'IV rapid bolus', freq:'Dosis tunggal (RSI)', notes:'Onset 60–90 dtk. Durasi 30–60 mnt. Reversal: Sugammadex 16 mg/kg' },
+        prepare:'Berikan IV bolus cepat segera setelah sedasi/induksi',
+        volFn:(dose)=>`${(dose/10).toFixed(2)} mL (10 mg/mL)`
+    },
+    {
+        id:'succinylcholine', name:'Suksinilkolin', cat:'Pelemas Otot', emerg:true,
+        indication:'RSI (Rapid Sequence Intubation) — onset tercepat',
+        conc:'20 mg/mL',
+        child:{ v:1.5, u:'mg/kg', max:150, route:'IV rapid bolus', freq:'Dosis tunggal', notes:'<10 kg: 2 mg/kg; >10 kg: 1.5 mg/kg; IM: 4 mg/kg. KI: hiperkalemia!' },
+        adult:{ v:1.5, u:'mg/kg', route:'IV rapid bolus', freq:'Dosis tunggal', notes:'KI: hiperkalemia, hipertermia maligna, miopati. Durasi ~10 mnt' },
+        prepare:'Berikan segera setelah sedasi/induksi. Tidak ada reversal',
+        volFn:(dose)=>`${(dose/20).toFixed(2)} mL (20 mg/mL)`
+    },
+    {
+        id:'dextrose', name:'Dextrosa (Hipoglikemia)', cat:'Metabolik', emerg:true,
+        indication:'Hipoglikemia berat (GDS &lt;50 mg/dL atau simtomatik)',
+        conc:'D50: 500 mg/mL · D40: 400 mg/mL · D25: 250 mg/mL · D10: 100 mg/mL',
+        child:{ v:0.5, u:'g/kg', route:'IV perlahan (vena besar)', freq:'Cek GDS ulang 15–30 mnt', notes:'= 2 mL/kg D25% atau 5 mL/kg D10%. Neonatus: D10 2–4 mL/kg' },
+        adult:{ fixed:25, u:'g (= 50 mL D50%)', route:'IV perlahan', freq:'Cek GDS ulang 15–30 mnt', notes:'Atau 125 mL D20% atau 250 mL D10%. Gunakan vena besar' },
+        prepare:'Encerkan ke D25 untuk anak. Hindari ekstravasasi (hiperosmolar)',
+        volFnChild:(w)=>`${(w*2).toFixed(0)} mL D25% atau ${(w*5).toFixed(0)} mL D10%`
+    },
+    {
+        id:'calcium-gluconate', name:'Kalsium Glukonat', cat:'Elektrolit', emerg:false,
+        indication:'Hipokalsemia, hiperkalemia dengan perubahan EKG, overdosis CCB',
+        conc:'100 mg/mL (10%)',
+        child:{ v:0.5, u:'mL/kg', max:20, route:'IV lambat 10 mnt', freq:'Dapat diulang, monitor EKG', notes:'= 50 mg/kg. Max 20 mL/dosis (2 g)' },
+        adult:{ fixed:10, u:'mL (= 1 g)', route:'IV lambat 10–20 mnt', freq:'Dapat diulang, monitor EKG', notes:'1–2 g kalsium glukonat 10%' },
+        prepare:'Encerkan 1:1 dengan D5W atau NS. JANGAN campur dengan NaHCO3',
+        volFnChild:(dose)=>`${dose.toFixed(1)} mL kalsium glukonat 10%`
+    },
+    {
+        id:'nabicarb', name:'NaHCO3 (Bikarbonat)', cat:'Metabolik', emerg:false,
+        indication:'Asidosis metabolik berat, hiperkalemia, overdosis TCA',
+        conc:'8.4%: 1 mEq/mL · 7.5%: 0.9 mEq/mL',
+        child:{ v:1, u:'mEq/kg', route:'IV perlahan (30–60 mnt)', freq:'Per hasil AGD', notes:'Encerkan 1:1 dengan air steril untuk anak <2 tahun' },
+        adult:{ v:1, u:'mEq/kg', route:'IV perlahan', freq:'Per hasil AGD', notes:'Atau: 0.3 × BB × BE deficit. Max 50–100 mEq/dosis' },
+        prepare:'JANGAN campur dengan kalsium atau epinefrin (inaktivasi/presipitasi)',
+        volFn:(dose)=>`${dose.toFixed(1)} mL (larutan 8.4% = 1 mEq/mL)`
+    },
+    {
+        id:'magnesium', name:'Magnesium Sulfat', cat:'Elektrolit', emerg:false,
+        indication:'Hipomagnesemia, status asmatikus, Torsades de Pointes, eklampsia',
+        conc:'500 mg/mL (50%) atau 200 mg/mL (20%)',
+        child:{ v:25, u:'mg/kg', max:2000, route:'IV lambat 15–30 mnt', freq:'Dapat diulang', notes:'Torsades: bolus lebih cepat 5–15 mnt. Max 2 g/dosis' },
+        adult:{ fixed:2000, u:'mg (= 2 g)', route:'IV lambat 15–30 mnt', freq:'Dapat diulang', notes:'Asma: 2 g dalam 20 mnt; Torsades: 2 g dalam 5–10 mnt; Eklampsia: 4 g loading' },
+        prepare:'Encerkan ke ≤20% sebelum IV. Monitor refleks patella (toksisitas: hiporefleksi → apnea)',
+        volFn:(dose)=>`${(dose/500).toFixed(1)} mL (50%) atau ${(dose/200).toFixed(1)} mL (20%) — encerkan dahulu`
+    },
+    {
+        id:'morphine', name:'Morfin', cat:'Analgesik Opioid', emerg:false,
+        indication:'Nyeri hebat, edema paru akut, analgesia pasca-operasi',
+        conc:'10 mg/mL',
+        child:{ v:0.1, u:'mg/kg', max:15, route:'IV perlahan / IM / SC', freq:'Tiap 4–6 jam, titrasi', notes:'Titrasi perlahan. Siapkan nalokson. Hati-hati depresi napas' },
+        adult:{ v:0.1, u:'mg/kg', route:'IV titrasi 2–4 mg tiap 5–15 mnt', freq:'Tiap 4–6 jam prn', notes:'Titrasi sampai nyeri terkontrol' },
+        prepare:'Encerkan ke 1 mg/mL untuk titrasi IV',
+        volFn:(dose)=>`${(dose/10).toFixed(2)} mL (10 mg/mL)`
+    },
+    {
+        id:'fentanyl', name:'Fentanil', cat:'Analgesik Opioid', emerg:false,
+        indication:'Analgesia prosedural, sedasi, adjuvan induksi anestesi',
+        conc:'50 mcg/mL',
+        child:{ v:1, u:'mcg/kg', max:200, route:'IV perlahan (3–5 mnt)', freq:'Titrasi, dapat diulang', notes:'Intranasal: 1–2 mcg/kg; Onset IV cepat 2–3 mnt' },
+        adult:{ v:1, u:'mcg/kg', route:'IV perlahan (3–5 mnt)', freq:'Titrasi 25–50 mcg tiap 5 mnt', notes:'Siapkan nalokson. Hati-hati chest wall rigidity dosis tinggi' },
+        prepare:'Siapkan nalokson. Berikan perlahan >3 mnt',
+        volFn:(dose)=>`${(dose/50).toFixed(3)} mL (50 mcg/mL)`
+    },
+    {
+        id:'naloxone', name:'Nalokson', cat:'Antidotum Opioid', emerg:true,
+        indication:'Reversal opioid, overdosis opioid (depresi napas)',
+        conc:'0.4 mg/mL',
+        child:{ v:0.01, u:'mg/kg', max:2, route:'IV / IM / Intranasal', freq:'Tiap 2–3 mnt jika perlu', notes:'Overdosis: 0.01 mg/kg. Intranasal: 0.1 mg/kg tiap lubang hidung' },
+        adult:{ v:0.4, u:'mg (titrasi)', route:'IV / IM / Intranasal', freq:'Tiap 2–3 mnt, max 10 mg', notes:'Titrasi perlahan. Awasi resedasi (durasi nalokson <nalokson)' },
+        prepare:'IM/IN jika tidak ada akses IV. Awasi ketat. Durasi pendek — mungkin perlu infus',
+        volFn:(dose)=>`${(dose/0.4).toFixed(2)} mL (0.4 mg/mL)`
+    },
+    {
+        id:'diazepam', name:'Diazepam', cat:'Antikonvulsan', emerg:true,
+        indication:'Status epileptikus lini pertama, kejang akut',
+        conc:'5 mg/mL (IV) · 10 mg/2.5 mL (rektal)',
+        child:{ v:0.3, u:'mg/kg', max:10, route:'IV perlahan / rektal', freq:'Ulangi 1× setelah 5 mnt', notes:'IV: 0.3 mg/kg; Rektal: 0.5 mg/kg. Max 10 mg' },
+        adult:{ fixed:10, u:'mg', route:'IV SANGAT perlahan', freq:'Ulangi 1× jika perlu', notes:'<5 mg/mnt IV. Siapkan ventilasi dan antagonis' },
+        prepare:'Berikan SANGAT PERLAHAN IV. Siapkan airway support',
+        volFn:(dose)=>`${(dose/5).toFixed(2)} mL (5 mg/mL)`
+    },
+    {
+        id:'phenytoin', name:'Fenitoin', cat:'Antikonvulsan', emerg:false,
+        indication:'Status epileptikus lini kedua, profilaksis kejang',
+        conc:'50 mg/mL',
+        child:{ v:20, u:'mg/kg', max:1000, route:'IV lambat (encerkan NS)', freq:'Loading dose', notes:'Rate ≤1 mg/kg/mnt. Pantau EKG dan TD' },
+        adult:{ v:20, u:'mg/kg', route:'IV dalam NaCl 0.9%', freq:'Loading dose', notes:'Rate ≤50 mg/mnt. Pantau EKG (aritmia, hipotensi)' },
+        prepare:'Encerkan dalam NaCl 0.9% (BUKAN D5W — presipitasi). Rate lambat!',
+        volFn:(dose)=>`${(dose/50).toFixed(1)} mL (50 mg/mL) — encerkan dalam NS`
+    },
+    {
+        id:'tranexamic', name:'Asam Traneksamat', cat:'Hemostasis', emerg:true,
+        indication:'Trauma berdarah masif (hanya &lt;3 jam dari kejadian)',
+        conc:'100 mg/mL',
+        child:{ v:15, u:'mg/kg', max:1000, route:'IV infus 15–30 mnt', freq:'Lalu 2 mg/kg/jam × 8 jam', notes:'Hanya jika <3 jam dari trauma. Max loading 1 g' },
+        adult:{ fixed:1000, u:'mg (= 1 g)', route:'IV infus 10–15 mnt', freq:'Lalu 1 g lagi dalam 8 jam', notes:'HARUS diberikan <3 jam trauma (CRASH-2). Tidak efektif jika >3 jam' },
+        prepare:'Encerkan 1 g dalam 100 mL NaCl atau D5W, infus 10–15 mnt',
+        volFn:(dose)=>`${(dose/100).toFixed(1)} mL (100 mg/mL)`
+    },
+    {
+        id:'hydrocortisone', name:'Hidrokortison', cat:'Kortikosteroid', emerg:false,
+        indication:'Insufisiensi adrenal akut, syok septik refrakter, anafilaksis',
+        conc:'100 mg/vial atau 500 mg/vial',
+        child:{ v:2, u:'mg/kg', max:100, route:'IV bolus atau infus', freq:'Tiap 6 jam', notes:'Krisis adrenal: 2 mg/kg bolus, lalu 1 mg/kg tiap 6 jam' },
+        adult:{ fixed:200, u:'mg/hari', route:'IV infus kontinyu atau 50 mg/6 jam', freq:'200 mg/hari', notes:'Surviving Sepsis: hanya jika syok refrakter setelah cairan + vasopressor' },
+        prepare:'Larutkan dalam 50–100 mL NaCl atau D5W',
+        volFn:(dose)=>`dari vial 100 mg atau 500 mg`
+    },
+];
+
+let selectedDrugId = null;
+
+function renderDrugList() {
+    document.getElementById('drug-list').innerHTML = DRUGS.map(d =>
+        `<button class="drug-chip ${d.emerg?'emergency':''} ${selectedDrugId===d.id?'selected':''}"
+            onclick="selectDrug('${d.id}')">${d.emerg?'🚨 ':''}${d.name}</button>`
+    ).join('');
+}
+
+function selectDrug(id) {
+    selectedDrugId = id;
+    renderDrugList();
+    renderDrugResult();
+}
+
+function renderDrugResult() {
+    if (!selectedDrugId) return;
+    const drug = DRUGS.find(d => d.id === selectedDrugId);
+    if (!drug) return;
+
+    const w = parseFloat(document.getElementById('drug-weight').value);
+    const group = document.getElementById('drug-group').value;
+    const dose = group === 'child' ? drug.child : drug.adult;
+    const hasWeight = w && !isNaN(w) && w > 0;
+
+    let doseHtml = '';
+
+    if (drug.isInfusion) {
+        const range = dose.range;
+        doseHtml = `<div class="dose-value">${range[0]}–${range[1]} ${dose.u}</div>`;
+        if (hasWeight && drug.concMcgMl) {
+            const rMin = ((range[0] * w) / drug.concMcgMl).toFixed(3);
+            const rMax = ((range[1] * w) / drug.concMcgMl).toFixed(2);
+            const rMinH = ((range[0] * w) / drug.concMcgMl * 60).toFixed(1);
+            const rMaxH = ((range[1] * w) / drug.concMcgMl * 60).toFixed(1);
+            doseHtml += `<div style="font-size:0.85rem;color:var(--primary);margin-top:4px;">
+                Rate (${drug.concMcgMl} mcg/mL): <strong>${rMin}–${rMax} mL/mnt</strong> = <strong>${rMinH}–${rMaxH} mL/jam</strong> (BB ${w} kg)
+            </div>`;
+        }
+    } else if (dose.fixed) {
+        doseHtml = `<div class="dose-value ${drug.emerg?'emerg':''}">${dose.fixed} ${dose.u}</div>`;
+        if (drug.volFn) doseHtml += `<div style="font-size:0.88rem;color:var(--primary);margin-top:4px;">= ${drug.volFn(dose.fixed)}</div>`;
+    } else {
+        if (hasWeight) {
+            let rawDose = dose.v * w;
+            let finalDose = rawDose;
+            if (dose.max != null) finalDose = Math.min(rawDose, dose.max);
+            if (dose.min != null) finalDose = Math.max(finalDose, dose.min);
+            const cappedNote = rawDose > finalDose ? ` <span style="font-size:0.78rem;color:var(--warning);">(dosis max: ${dose.max} ${dose.u.replace('/kg','')})</span>`
+                             : rawDose < finalDose ? ` <span style="font-size:0.78rem;color:var(--warning);">(dosis min: ${dose.min} ${dose.u.replace('/kg','')})</span>` : '';
+            doseHtml = `<div class="dose-value ${drug.emerg?'emerg':''}">${finalDose.toFixed(finalDose < 1 ? 3 : 1)} ${dose.u.replace('/kg','')}${cappedNote}</div>`;
+
+            // Volume calculation
+            let volStr = '';
+            if (drug.id === 'calcium-gluconate' && drug.volFnChild) {
+                volStr = drug.volFnChild(finalDose);
+            } else if (drug.id === 'dextrose' && group === 'child' && drug.volFnChild) {
+                volStr = drug.volFnChild(w);
+            } else if (drug.volFn) {
+                volStr = drug.volFn(finalDose);
+            }
+            if (volStr) doseHtml += `<div style="font-size:0.88rem;color:var(--primary);margin-top:4px;">= ${volStr}</div>`;
+        } else {
+            doseHtml = `<div class="dose-value">${dose.v} ${dose.u}</div><div style="font-size:0.82rem;color:var(--text-light);margin-top:3px;">Masukkan berat badan untuk kalkulasi otomatis</div>`;
+        }
+    }
+
+    const html = `
+        <div class="drug-header-row">
+            <div class="drug-name">${drug.name}</div>
+            <div class="drug-category-badge">${drug.cat}</div>
+        </div>
+        <div class="alert alert-info" style="margin-bottom:14px;">📋 <strong>Indikasi:</strong> ${drug.indication}</div>
+        <div class="result-grid">
+            <div class="result-item ${drug.emerg?'danger':''}">
+                <div class="result-label">Dosis${hasWeight ? ' ('+w+' kg)' : ''}</div>
+                ${doseHtml}
+                <div class="result-unit" style="margin-top:4px;">${dose.route}</div>
+            </div>
+            <div class="result-item">
+                <div class="result-label">Frekuensi</div>
+                <div style="font-size:0.88rem;font-weight:700;color:var(--primary);margin-top:4px;">${dose.freq}</div>
+            </div>
+        </div>
+        <div class="info-row" style="margin-top:12px;"><span class="lbl">Sediaan</span><span class="val">${drug.conc}</span></div>
+        <div class="info-row"><span class="lbl">Catatan klinis</span><span class="val">${dose.notes}</span></div>
+        <div class="info-row"><span class="lbl">Persiapan</span><span class="val">${drug.prepare}</span></div>
+        ${drug.emerg ? '<div class="alert alert-danger" style="margin-top:12px;">🚨 Obat emergensi kritis — verifikasi dosis dengan kolega sebelum pemberian</div>' : ''}
+    `;
+
+    document.getElementById('drug-result-content').innerHTML = html;
+    document.getElementById('drug-result-card').classList.remove('hidden');
+}
+
+// Initialize
+renderDrugList();
+</script>
+
+</body>
+</html>
