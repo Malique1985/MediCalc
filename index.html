@@ -919,6 +919,133 @@ const DRUGS = [
         prepare:'Larutkan dalam 50–100 mL NaCl atau D5W',
         volFn:(dose)=>`dari vial 100 mg atau 500 mg`
     },
+    // ── OBAT UGD UMUM ──────────────────────────────────────────────────────────
+    {
+        id:'ranitidine', name:'Ranitidin', cat:'GI — H2 Blocker', emerg:false,
+        indication:'Tukak lambung/duodenum, GERD, perdarahan GI atas, profilaksis stres ulser',
+        conc:'25 mg/mL (50 mg/2 mL)',
+        child:{ v:1, u:'mg/kg', max:50, route:'IV perlahan (5–10 mnt)', freq:'Tiap 6–8 jam', notes:'Encerkan dalam 20 mL NS. Max 50 mg/dosis' },
+        adult:{ fixed:50, u:'mg', route:'IV perlahan (5–10 mnt)', freq:'Tiap 8 jam', notes:'Encerkan 50 mg dalam 20 mL NS. Infus: 6.25 mg/jam' },
+        prepare:'Encerkan 2 mL (50 mg) dalam 18 mL NS → 20 mL total. Berikan dalam 5–10 menit',
+        volFn:(dose)=>`${(dose/25).toFixed(1)} mL (25 mg/mL)`
+    },
+    {
+        id:'omeprazole', name:'Omeprazol', cat:'GI — PPI', emerg:false,
+        indication:'Perdarahan GI atas, tukak lambung berat, GERD, pencegahan ulser',
+        conc:'40 mg/vial (rekonstruksi dengan 10 mL NaCl)',
+        child:{ v:1, u:'mg/kg', max:40, route:'IV infus 20–30 mnt', freq:'Sekali sehari (atau 2× pada perdarahan aktif)', notes:'Max 40 mg/dosis. Encerkan dalam 100 mL NS' },
+        adult:{ fixed:40, u:'mg', route:'IV infus 20–30 mnt', freq:'Sekali sehari; perdarahan aktif: 80 mg bolus lalu 8 mg/jam', notes:'Perdarahan variseal/ulser: loading 80 mg, infus 8 mg/jam × 72 jam' },
+        prepare:'Rekonstruksi 40 mg + 10 mL NaCl → encerkan dalam 100 mL NS → infus 20–30 mnt',
+        volFn:(dose)=>`dari vial 40 mg`
+    },
+    {
+        id:'pantoprazole', name:'Pantoprazol', cat:'GI — PPI', emerg:false,
+        indication:'Perdarahan GI atas, tukak lambung, GERD berat (alternatif omeprazol)',
+        conc:'40 mg/vial',
+        child:{ v:1, u:'mg/kg', max:40, route:'IV infus 15–30 mnt', freq:'Sekali sehari', notes:'Max 40 mg/dosis' },
+        adult:{ fixed:40, u:'mg', route:'IV infus 15–30 mnt', freq:'Sekali sehari', notes:'Perdarahan aktif: 80 mg bolus, lalu 8 mg/jam' },
+        prepare:'Rekonstruksi dengan 10 mL NaCl → encerkan dalam 100 mL NS → infus 15–30 mnt',
+        volFn:(dose)=>`dari vial 40 mg`
+    },
+    {
+        id:'antrain', name:'Antrain (Metamizol)', cat:'Analgesik/Antipiretik', emerg:false,
+        indication:'Nyeri akut sedang–berat, demam tinggi refrakter',
+        conc:'500 mg/mL',
+        child:{ v:10, u:'mg/kg', max:1000, route:'IV perlahan (>5 mnt) atau IM', freq:'Tiap 6–8 jam', notes:'Max 1 g/dosis. Berikan SANGAT PERLAHAN (risiko hipotensi)' },
+        adult:{ fixed:1000, u:'mg (= 2 mL)', route:'IV SANGAT perlahan (>5 mnt) atau IM', freq:'Tiap 6–8 jam, max 5 g/hari', notes:'Monitor TD selama pemberian. KI: alergi, agranulositosis' },
+        prepare:'Dapat diberikan langsung (undiluted) IM. Untuk IV: encerkan 1–2 mL dalam 10 mL NS, berikan SANGAT perlahan',
+        volFn:(dose)=>`${(dose/500).toFixed(2)} mL (500 mg/mL)`
+    },
+    {
+        id:'ketorolac', name:'Ketorolak', cat:'Analgesik NSAID', emerg:false,
+        indication:'Nyeri akut sedang–berat pasca-operasi, kolik renal, nyeri muskuloskeletal',
+        conc:'30 mg/mL',
+        child:{ v:0.5, u:'mg/kg', max:15, route:'IV lambat (>15 dtk) / IM', freq:'Tiap 6 jam, max 5 hari', notes:'Max 15 mg/dosis. KI: <2 tahun, gangguan fungsi ginjal berat' },
+        adult:{ fixed:30, u:'mg', route:'IV lambat (>15 dtk) / IM', freq:'Tiap 6 jam, max 5 hari (max 120 mg/hari)', notes:'Usia >65 th / BB <50 kg: 15 mg. KI: gagal ginjal, tukak aktif' },
+        prepare:'Untuk IV: dapat diberikan undiluted, injeksi lambat >15 detik. Untuk infus: encerkan dalam 50 mL NS',
+        volFn:(dose)=>`${(dose/30).toFixed(2)} mL (30 mg/mL)`
+    },
+    {
+        id:'citicoline', name:'Citicolin', cat:'Neuroprotektif', emerg:false,
+        indication:'Stroke iskemik akut, cedera kepala, gangguan kesadaran',
+        conc:'125 mg/mL (250 mg/2 mL atau 500 mg/4 mL)',
+        child:{ v:10, u:'mg/kg', max:500, route:'IV lambat atau infus', freq:'2× sehari', notes:'Belum ada konsensus dosis anak yang kuat' },
+        adult:{ fixed:500, u:'mg', route:'IV lambat (3–5 mnt) atau infus', freq:'2× sehari (500–1000 mg/hari)', notes:'Stroke akut: 1000 mg/hari. Diberikan 3–5 mnt IV atau infus 250 mL dalam 1 jam' },
+        prepare:'Dapat diberikan IV lambat undiluted atau encerkan dalam 100–250 mL NaCl/D5W',
+        volFn:(dose)=>`${(dose/125).toFixed(1)} mL (125 mg/mL)`
+    },
+    {
+        id:'furosemide', name:'Furosemid', cat:'Diuretik', emerg:false,
+        indication:'Edema paru akut, gagal jantung, hipertensi krisis, oliguria, hiperkalsemia',
+        conc:'10 mg/mL',
+        child:{ v:1, u:'mg/kg', max:40, route:'IV perlahan (1–2 mnt)', freq:'Tiap 6–12 jam, titrasi', notes:'Max 6 mg/kg/hari. Pantau elektrolit dan diuresis' },
+        adult:{ fixed:40, u:'mg', route:'IV perlahan (1–2 mnt)', freq:'Tiap 6–12 jam, titrasi', notes:'Edema paru akut: 40–80 mg IV bolus. Infus: 0.1–0.4 mg/kg/jam' },
+        prepare:'Dapat diberikan undiluted IV perlahan. Infus kontinyu: encerkan dalam NaCl 0.9%',
+        volFn:(dose)=>`${(dose/10).toFixed(1)} mL (10 mg/mL)`
+    },
+    {
+        id:'ondansetron', name:'Ondansetron', cat:'Antiemetik', emerg:false,
+        indication:'Mual/muntah akut, PONV (post-op nausea), kemoterapi',
+        conc:'2 mg/mL (4 mg/2 mL atau 8 mg/4 mL)',
+        child:{ v:0.15, u:'mg/kg', max:4, route:'IV perlahan (>30 dtk)', freq:'Tiap 4–8 jam', notes:'Max 4 mg/dosis. Encerkan dalam 50 mL NS, infus 15 mnt' },
+        adult:{ fixed:4, u:'mg', route:'IV perlahan (>30 dtk)', freq:'Tiap 4–8 jam', notes:'Mual berat: 8 mg. Monitor EKG (perpanjangan QT dosis tinggi)' },
+        prepare:'Encerkan dalam 50 mL NS. Berikan infus 15 mnt atau IV lambat >30 detik',
+        volFn:(dose)=>`${(dose/2).toFixed(1)} mL (2 mg/mL)`
+    },
+    {
+        id:'metoclopramide', name:'Metoklopramid (Primperan)', cat:'Antiemetik/Prokinetik', emerg:false,
+        indication:'Mual/muntah, gastroparesis, refluks gastroesofageal',
+        conc:'5 mg/mL (10 mg/2 mL)',
+        child:{ v:0.1, u:'mg/kg', max:10, route:'IV perlahan (>3 mnt)', freq:'Tiap 6–8 jam', notes:'Max 0.5 mg/kg/hari. KI: <1 tahun. Awasi reaksi ekstrapiramidal' },
+        adult:{ fixed:10, u:'mg', route:'IV perlahan (>3 mnt)', freq:'Tiap 6–8 jam', notes:'Berikan lambat (>3 mnt). Awasi reaksi ekstrapiramidal' },
+        prepare:'Encerkan 2 mL dalam 50 mL NS. Berikan infus 15 mnt atau IV lambat >3 mnt',
+        volFn:(dose)=>`${(dose/5).toFixed(1)} mL (5 mg/mL)`
+    },
+    {
+        id:'dexamethasone', name:'Deksametason', cat:'Kortikosteroid', emerg:false,
+        indication:'Edema serebral, meningitis, PPOK eksaserbasi, reaksi alergi berat, croup',
+        conc:'5 mg/mL',
+        child:{ v:0.15, u:'mg/kg', max:10, route:'IV / IM', freq:'Tiap 6 jam (sesuai indikasi)', notes:'Meningitis: 0.15 mg/kg/6 jam × 4 hari; Croup: 0.6 mg/kg dosis tunggal' },
+        adult:{ fixed:5, u:'mg', route:'IV / IM', freq:'Tiap 6–8 jam (sesuai indikasi)', notes:'Edema serebral: 8–10 mg loading, lalu 4 mg/6 jam; Anti-emetik: 4–8 mg' },
+        prepare:'Dapat diberikan undiluted IV perlahan atau IM',
+        volFn:(dose)=>`${(dose/5).toFixed(2)} mL (5 mg/mL)`
+    },
+    {
+        id:'tramadol', name:'Tramadol', cat:'Analgesik Opioid Lemah', emerg:false,
+        indication:'Nyeri sedang–berat, analgesia post-operasi',
+        conc:'50 mg/mL (100 mg/2 mL)',
+        child:{ v:1, u:'mg/kg', max:100, route:'IV infus lambat (>15 mnt)', freq:'Tiap 6 jam', notes:'Max 400 mg/hari. KI: <1 tahun. Hati-hati kejang' },
+        adult:{ fixed:100, u:'mg', route:'IV infus lambat (>15 mnt)', freq:'Tiap 6 jam, max 400 mg/hari', notes:'Berikan lambat (>15 mnt) — risiko mual/muntah jika terlalu cepat' },
+        prepare:'Encerkan 100 mg dalam 100 mL NaCl → infus dalam 15–30 mnt. JANGAN bolus langsung',
+        volFn:(dose)=>`${(dose/50).toFixed(1)} mL (50 mg/mL)`
+    },
+    {
+        id:'hyoscine', name:'Hyoscine (Buscopan)', cat:'Antispasmodik', emerg:false,
+        indication:'Kolik abdomen, kolik renal/bilier, spasme saluran cerna/kemih',
+        conc:'20 mg/mL (20 mg/1 mL)',
+        child:{ v:0.3, u:'mg/kg', max:20, route:'IV perlahan / IM / SC', freq:'Tiap 6–8 jam', notes:'Max 20 mg/dosis. Monitor denyut jantung' },
+        adult:{ fixed:20, u:'mg', route:'IV perlahan / IM', freq:'Tiap 6–8 jam, max 100 mg/hari', notes:'Dapat diulang setelah 30 mnt jika perlu. Awasi takikardia' },
+        prepare:'Encerkan dalam 10 mL NS untuk IV. Dapat diberikan IM/SC undiluted',
+        volFn:(dose)=>`${(dose/20).toFixed(1)} mL (20 mg/mL)`
+    },
+    {
+        id:'paracetamol-iv', name:'Paracetamol IV (Perfalgan)', cat:'Analgesik/Antipiretik', emerg:false,
+        indication:'Nyeri sedang, demam tinggi, analgesia multimodal pasca-operasi',
+        conc:'10 mg/mL (1 g/100 mL infus)',
+        child:{ v:15, u:'mg/kg', max:1000, route:'IV infus (15 mnt)', freq:'Tiap 4–6 jam, max 60 mg/kg/hari', notes:'<10 kg: 7.5 mg/kg/dosis. Siap pakai dalam botol infus 100 mL' },
+        adult:{ fixed:1000, u:'mg (= 100 mL)', route:'IV infus (15 mnt)', freq:'Tiap 4–6 jam, max 4 g/hari', notes:'BB <50 kg: gunakan 15 mg/kg (max 3 g/hari). Siap pakai' },
+        prepare:'Sediaan siap pakai 100 mL (1 g). Infus dalam 15 menit. Jangan campur obat lain dalam botol',
+        volFn:(dose)=>`${(dose/10).toFixed(0)} mL (10 mg/mL — botol infus 100 mL)`
+    },
+    {
+        id:'ceftriaxone', name:'Seftriakson', cat:'Antibiotik', emerg:false,
+        indication:'Infeksi berat (pneumonia, meningitis, sepsis, ISK komplikata)',
+        conc:'1 g/vial atau 2 g/vial (rekonstruksi)',
+        child:{ v:50, u:'mg/kg', max:2000, route:'IV infus 30–60 mnt', freq:'Sekali sehari (meningitis: 2× sehari)', notes:'Meningitis: 100 mg/kg/hari dibagi 2 dosis. Max 4 g/hari' },
+        adult:{ fixed:2000, u:'mg (= 2 g)', route:'IV infus 30–60 mnt', freq:'Sekali sehari', notes:'Infeksi ringan: 1 g/hari; Berat/meningitis: 2–4 g/hari' },
+        prepare:'Rekonstruksi 1 g + 10 mL air steril → encerkan dalam 100 mL NaCl → infus 30–60 mnt. JANGAN campur dengan kalsium (neonatus)',
+        volFn:(dose)=>`dari vial ${dose <= 1000 ? '1 g' : '2 g'}`
+    },
 ];
 
 let selectedDrugId = null;
